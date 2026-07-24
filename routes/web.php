@@ -3,47 +3,69 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\EventController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\WelcomeController;
+
+use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\PartnerController;
-use App\Models\Partner;
+use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\EventsController;
+
 use App\Models\Category;
+use App\Models\Partner;
+use App\Http\Controllers\CheckoutController;
 
-Route::get('/', function () {
-    return view('welcome', [
-        'partners' => Partner::all(),
-        'categories' => Category::all()
-    ]);
-});
-Route::resource('partners', PartnerController::class);
+/*
+|--------------------------------------------------------------------------
+| User / Public Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::resource('categories', CategoryController::class);
-Route::resource('admin/categories', CategoryController::class);
-Route::get('/', [WelcomeController::class, 'index']);
-Route::resource('admin/events', EventController::class);
-
-// Rute User Area
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/event/1', [EventController::class,
-'show'])->name('events.show');
-Route::get('/checkout', [EventController::class,
-'checkout'])->name('checkout');
-Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 
-// Rute Admin Area
-Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+// Route baru yang kamu minta ditambahkan di sini (Sisi User)
+Route::get('/events/{event}', [EventsController::class, 'show'])
+    ->name('events.show');
+Route::get('/my-ticket', [EventsController::class, 'ticket'])->name('ticket');
+Route::get('/checkout/{event}', [CheckoutController::class, 'create'])
+    ->name('checkout.create');
 
-Route::get('/', [DashboardController::class,
+Route::post('/checkout/{event}', [CheckoutController::class, 'store'])
+    ->name('checkout.store');
 
-'index'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/events', [EventController::class,
+Route::prefix('admin')->name('admin.')->group(function () {
 
-'indexAdmin'])->name('events.index');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::middleware(['auth', 'admin'])->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::resource('categories', CategoryController::class);
+
+        Route::resource('partners', PartnerController::class);
+
+       Route::resource('events', EventsController::class);
+
+        Route::get('transactions', [TransactionController::class, 'index'])
+        ->name('transactions.index');
+        });
+
+        Route::get('/payment/{order_id}', [\App\Http\Controllers\CheckoutController::class, 'payment'])->name('checkout.payment');
+    Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])
+    ->name('checkout.payment');
+
+Route::get('/success/{order_id}', [CheckoutController::class, 'success'])
+    ->name('checkout.success');
+
+    Route::post('/midtrans/callback', [\App\Http\Controllers\MidtransWebhookController::class, 'handle']);
 });
-Route::get('/event', [EventController::class, 'show'])->name('event.detail');
-
-Route::get('/admin/categories', [CategoryController::class, 'index'])
-    ->name('admin.categories');

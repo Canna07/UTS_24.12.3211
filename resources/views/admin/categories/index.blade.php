@@ -46,7 +46,7 @@
 
     <!-- SEARCH -->
     <form
-        action="{{ route('categories.index') }}"
+        action="{{ route('admin.categories.index') }}"
         method="GET"
         class="mb-6"
     >
@@ -87,7 +87,7 @@
         </h2>
 
         <form
-            action="{{ route('categories.store') }}"
+            action="{{ route('admin.categories.store') }}"
             method="POST"
         >
 
@@ -220,7 +220,7 @@
 
                             <!-- FORM UPDATE -->
                             <form
-                                action="{{ route('categories.update', $category->id) }}"
+                                action="{{ route('admin.categories.update', $category->id) }}"
                                 method="POST"
                                 class="flex gap-2"
                             >
@@ -257,7 +257,7 @@
 
                             <!-- FORM DELETE -->
                             <form
-                                action="{{ route('categories.destroy', $category->id) }}"
+                                action="{{ route('admin.categories.destroy', $category->id) }}"
                                 method="POST"
                                 onsubmit="return confirm('Yakin ingin menghapus kategori ini?')"
                             >
