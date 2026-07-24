@@ -10,6 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         // 1. Menjumlahkan semua nominal total_price dari kolom Transaksi Lunas
         $totalRevenue = Transaction::whereIn('status', ['settlement', 'success'])->sum('total_price');
         
@@ -26,5 +27,8 @@ class DashboardController extends Controller
         $recentTransactions = Transaction::with('event')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('totalRevenue', 'ticketsSold', 'activeEvents', 'pendingOrders', 'recentTransactions'));
+=======
+        return view('dashboard'); 
+>>>>>>> 89bdbacb45170901c8192c43fcacbfee3084fe88
     }
 }
